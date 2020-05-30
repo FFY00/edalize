@@ -1,13 +1,13 @@
 Edalize
-=======
+======
 
 .. image:: https://github.com/olofk/edalize/workflows/CI/badge.svg
-        :target: https://github.com/olofk/edalize/actions?query=workflow%3ACI
-        :alt: CI status
+    :target: https://github.com/olofk/edalize/actions?query-workflow%3ACI
+    :alt: CI status
 
-.. image:: https://readthedocs.org/projects/edalize/badge/?version=latest
-        :target: https://edalize.readthedocs.io/en/latest/?badge=latest
-        :alt: Documentation Status
+.. image:: https://readthedocs.org/projects/edalize/badge/?version-latest
+    :target: https://edalize.readthedocs.io/en/latest/?badge-latest
+    :alt: Documentation Status
 
 What's this?
 ------------
@@ -34,6 +34,8 @@ Install it
 Edalize is a Python module. Then once downloaded we can install it with
 following Python command::
 
+.. code:: sh
+
     $ cd edalize
     $ python -m pip install -e .
 
@@ -55,65 +57,84 @@ directly in the Python console.
 
 First we have to import Edalize objects::
 
-  from edalize import *
+.. code:: python
+
+    from edalize import *
 
 The os module is also required for this tutorial::
 
-  import os
+.. code:: python
+
+    import os
 
 Then register the files to use::
 
-  work_root = 'build'
+.. code:: python
+    work_root = 'build'
 
-  files = [
-    {'name' : os.path.relpath('blinky.v', work_root),
-     'file_type' : 'verilogSource'},
-    {'name' : os.path.relpath('blinky_tb.v', work_root),
-     'file_type' : 'verilogSource'},
-    {'name' : os.path.relpath('vlog_tb_utils.v', work_root),
-     'file_type' : 'verilogSource'}
-  ]
+    files = [
+      {'name' : os.path.relpath('blinky.v', work_root),
+       'file_type' : 'verilogSource'},
+      {'name' : os.path.relpath('blinky_tb.v', work_root),
+       'file_type' : 'verilogSource'},
+      {'name' : os.path.relpath('vlog_tb_utils.v', work_root),
+       'file_type' : 'verilogSource'}
+    ]
 
 The design has a toplevel Verilog parameter with the name ``clk_freq_hz``
 that accepts integers. We set its default value to ``1000``. The testbench also
 has an option to enable waveform dumping by setting a plusarg called ``vcd``::
 
-  parameters = {'clk_freq_hz' : {'datatype' : 'int', 'default' : 1000, 'paramtype' : 'vlogparam'},
-                'vcd' : {'datatype' : 'bool', 'paramtype' : 'plusarg'}}
+.. code:: python
+
+    parameters = {'clk_freq_hz' : {'datatype' : 'int', 'default' : 1000, 'paramtype' : 'vlogparam'},
+                  'vcd' : {'datatype' : 'bool', 'paramtype' : 'plusarg'}}
 
 Let Edalize know we intend to use Icarus Verilog for our simulation::
 
-  tool = 'icarus'
+.. code:: python
+
+    tool = 'icarus'
 
 And put it all into a single data structure together with some info about the toplevel and name for the project::
 
-  edam = {
-    'files'        : files,
-    'name'         : 'blinky_project',
-    'parameters'   : parameters,
-    'toplevel'     : 'blinky_tb'
-  }
+.. code:: python
+
+    edam = {
+      'files'        : files,
+      'name'         : 'blinky_project',
+      'parameters'   : parameters,
+      'toplevel'     : 'blinky_tb'
+    }
 
 Now we need to get ourselves a backend object from Edalize::
 
-  backend = get_edatool(tool)(edam=edam,
-                              work_root=work_root)
+.. code:: python
+
+    backend = get_edatool(tool)(edam=edam,
+                                work_root=work_root)
 
 Create the directory and the project files::
 
-  os.makedirs(work_root)
-  backend.configure()
+.. code:: python
+
+    os.makedirs(work_root)
+    backend.configure()
 
 At this point, we still haven't run the actual EDA tool and the files in the ``work_root`` directory can be used without Edalize if that is preferred. But let's continue the example with Edalize.
 
 Build the simulation model::
 
-  backend.build()
+.. code:: python
+
+    backend.build()
 
 And finally run it, with our arguments. Some types of parameters (e.g. plusargs) are defined aat runtime, and at this point we can change their value by passing the name and new value to ``run()``. Or we could skip it altogether, and the default value from the configure stage would be used. Let's run with VCD logging enabled::
 
-  args = {'vcd' : True}
-  backend.run(args)
+.. code:: python
+
+    args = {'vcd' : True}
+    backend.run(args)
 
 Tada! We have simulated. As an exercise, try to just change the tool variable to e.g. modelsim, xsim or any of the other simulators supported by Edalize and see if it works without any changes.
 
